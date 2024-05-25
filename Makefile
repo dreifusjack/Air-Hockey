@@ -1,6 +1,6 @@
 IDIR =../include
 CC=g++
-CFLAGS= -I$(IDIR) -g -O0
+CFLAGS= -I$(IDIR) -g -O0 -Wall -Werror -std=c++11
 
 ODIR=.
 

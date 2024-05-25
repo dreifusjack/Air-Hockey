@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <chrono>
 using namespace std;
 
 // Main Game function
@@ -42,116 +43,202 @@ void air_hockey()
   getmaxyx(stdscr, zone_height, zone_width);
   zone_height -= 1;
   zone_width -= 1;
-  zone_t *z = init_zone(0, 1, zone_width, zone_height - 1);
-  ball_t *b = init_ball(zone_width / 2, zone_height / 2, 1, 1);
-  slider_t *top = init_slider(zone_width / 2, 5, 'T');
-  slider_t *bottom = init_slider(zone_width / 2, zone_height - 5, 'U');
-  draw_zone(z);
-  draw_slider(top);
-  draw_slider(bottom);
-  draw_ball(b);
-  refresh();
-  // nodelay(stdscr, TRUE); // Do not wait for characters using getch.
-  halfdelay(5); // Wait for 1/2th of a second for user input
-  noecho();
-  bool is_paused = false;
-  int pause_input;
 
-  string pause_instruction = "Press 'P' to pause/resume the game.";
-  mvprintw(0, (zone_width - pause_instruction.length()) / 2, pause_instruction.c_str());
-  refresh();
+  bool game_over = false;
 
-  while (1)
+  while (!game_over)
   {
-    // Check for user input
-    nodelay(stdscr, TRUE); // Non-blocking getch
-    pause_input = getch();
+    clear();
+    zone_t *z = init_zone(0, 2, zone_width, zone_height - 2);
+    ball_t *b = init_ball(zone_width / 2, zone_height / 2, 1, 1);
+    slider_t *top = init_slider(zone_width / 2, 5, 'T');
+    slider_t *bottom = init_slider(zone_width / 2, zone_height - 5, 'U');
+    draw_zone(z);
+    draw_slider(top);
+    draw_slider(bottom);
+    draw_ball(b);
+    refresh();
+    // nodelay(stdscr, TRUE); // Do not wait for characters using getch.
+    halfdelay(5); // Wait for 1/2th of a second for user input
+    noecho();
+    bool is_paused = false;
+    int in_game_input;
 
-    if (pause_input == 'P' || pause_input == 'p')
+    string pause_instruction = "Press 'P' to pause/resume the game.";
+    mvprintw(0, (zone_width - pause_instruction.length()) / 2, pause_instruction.c_str());
+    refresh();
+
+    string end_instruction = "Press 'Q' to end the game.";
+    mvprintw(1, (zone_width - end_instruction.length()) / 2, end_instruction.c_str());
+    refresh();
+
+    // timer for the game
+    auto start_time = chrono::steady_clock::now();
+    auto end_time = start_time + chrono::minutes(2);
+
+    bool in_game = true;
+
+    while (in_game)
     {
-      is_paused = !is_paused;
-    }
+      // Check for user input
+      nodelay(stdscr, TRUE); // Non-blocking getch
+      in_game_input = getch();
 
-    if (is_paused)
-    {
-      // Display "Game Paused" message
-      string pause_message = "Game Paused. Press 'P' to resume.";
-      mvprintw(zone_height / 2, (zone_width - pause_message.length()) / 2, pause_message.c_str());
-      refresh();
-
-      // Wait for 'P' or 'p' to resume
-      while (true)
+      if (in_game_input == 'P' || in_game_input == 'p')
       {
-        pause_input = getch();
-        if (pause_input == 'P' || pause_input == 'p')
+        is_paused = !is_paused;
+      }
+      else if (in_game_input == 'Q' || in_game_input == 'q')
+      {
+        in_game = false;
+        end_game_screen(zone_width, zone_height);
+        int end_choice;
+        while (true)
         {
-          is_paused = false;
+          end_choice = getch();
+          if (end_choice == 'N' || end_choice == 'n')
+          {
+            clear();
+            refresh();
+            break; // Breaks out of the end game screen loop and restarts the game
+          }
+          else if (end_choice == 'E' || end_choice == 'e')
+          {
+            clear();
+            printw("Exiting the game...");
+            game_over = true;
+            in_game = false;
+            break; // Breaks out of both loops and exits the program
+          }
+        }
+      }
+
+      if (is_paused)
+      {
+        // Display "Game Paused" message
+        string pause_message = "Game Paused. Press 'P' to resume.";
+        mvprintw(zone_height / 2, (zone_width - pause_message.length()) / 2, pause_message.c_str());
+        refresh();
+
+        // Wait for 'P' or 'p' to resume
+        while (true)
+        {
+          in_game_input = getch();
+          if (in_game_input == 'P' || in_game_input == 'p')
+          {
+            is_paused = false;
+            break;
+          }
+        }
+        // Clear the "Game Paused" message
+        clear();
+        draw_zone(z);
+        draw_slider(top);
+        draw_slider(bottom);
+        draw_ball(b);
+        refresh();
+      }
+
+      auto current_time = chrono::steady_clock::now();
+      auto time_left = chrono::duration_cast<chrono::seconds>(end_time - current_time).count();
+      if (time_left <= 0)
+      {
+        in_game = false;
+        end_game_screen(zone_width, zone_height);
+        int end_choice;
+        while (true)
+        {
+          end_choice = getch();
+          if (end_choice == 'N' || end_choice == 'n')
+          {
+            clear();
+            refresh();
+            break; // Breaks out of the end game screen loop and restarts the game
+          }
+          else if (end_choice == 'E' || end_choice == 'e')
+          {
+            game_over = true;
+            in_game = false;
+            break; // Breaks out of both loops and exits the program
+          }
+        }
+      }
+
+      int minutes = time_left / 60;
+      int seconds = time_left % 60;
+      mvprintw(0, 0, "Time left: %02d:%02d", minutes, seconds);
+
+      // Move the current piece
+      if ((arrow = read_escape(&c)) != NOCHAR)
+      {
+        switch (arrow)
+        {
+
+        // Functionality for Left Arrow Key that controls the bottom slider
+        case LEFT:
+          moveSlider(bottom, bottom->upper_left_x - slider_x_speed, bottom->upper_left_y, zone_width, zone_height);
+          refresh();
+          break;
+        // Functionality for Rigth Arrow Key that controls the bottom slider
+        case RIGHT:
+          moveSlider(bottom, bottom->upper_left_x + slider_x_speed, bottom->upper_left_y, zone_width, zone_height);
+          break;
+        // Functionality for Up Arrow Key that controls the bottom slider
+        case UP:
+          moveSlider(bottom, bottom->upper_left_x, bottom->upper_left_y - slider_y_speed, zone_width, zone_height);
+          break;
+        // Functionality for Down Arrow Key that controls the bottom slider
+        case DOWN:
+          moveSlider(bottom, bottom->upper_left_x, bottom->upper_left_y + slider_y_speed, zone_width, zone_height);
+          break;
+        // Functionality for A Key that controls the top slider
+        case A:
+          moveSlider(top, top->upper_left_x - slider_x_speed, top->upper_left_y, zone_width, zone_height);
+          break;
+          // Functionality for D Key that controls the top slider
+        case D:
+          moveSlider(top, top->upper_left_x + slider_x_speed, top->upper_left_y, zone_width, zone_height);
+          break;
+        // Functionality for W Key that controls the top slider
+        case W:
+          moveSlider(top, top->upper_left_x, top->upper_left_y - slider_y_speed, zone_width, zone_height);
+          break;
+        // Functionality for S Key that controls the top slider
+        case S:
+          moveSlider(top, top->upper_left_x, top->upper_left_y + slider_y_speed, zone_width, zone_height);
+          break;
+        default:
+          mvprintw(1, 5, "%c", c);
           break;
         }
       }
-      // Clear the "Game Paused" message
-      clear();
+      refresh();
+      undraw_zone(z);
       draw_zone(z);
-      draw_slider(top);
-      draw_slider(bottom);
+      undraw_ball(b);
+      moveBall(b);
+      checkCollisionSlider(bottom, b);
+      checkCollisionSlider(top, b);
+      checkCollisionWithZone(b, z);
       draw_ball(b);
       refresh();
+      // usleep(200000);
+      nanosleep(&tim, &tim_ret);
     }
-    // Move the current piece
-    if ((arrow = read_escape(&c)) != NOCHAR)
-    {
-      switch (arrow)
-      {
-
-      // Functionality for Left Arrow Key that controls the bottom slider
-      case LEFT:
-        moveSlider(bottom, bottom->upper_left_x - slider_x_speed, bottom->upper_left_y, zone_width, zone_height);
-        refresh();
-        break;
-      // Functionality for Rigth Arrow Key that controls the bottom slider
-      case RIGHT:
-        moveSlider(bottom, bottom->upper_left_x + slider_x_speed, bottom->upper_left_y, zone_width, zone_height);
-        break;
-      // Functionality for Up Arrow Key that controls the bottom slider
-      case UP:
-        moveSlider(bottom, bottom->upper_left_x, bottom->upper_left_y - slider_y_speed, zone_width, zone_height);
-        break;
-      // Functionality for Down Arrow Key that controls the bottom slider
-      case DOWN:
-        moveSlider(bottom, bottom->upper_left_x, bottom->upper_left_y + slider_y_speed, zone_width, zone_height);
-        break;
-      // Functionality for A Key that controls the top slider
-      case A:
-        moveSlider(top, top->upper_left_x - slider_x_speed, top->upper_left_y, zone_width, zone_height);
-        break;
-        // Functionality for D Key that controls the top slider
-      case D:
-        moveSlider(top, top->upper_left_x + slider_x_speed, top->upper_left_y, zone_width, zone_height);
-        break;
-      // Functionality for W Key that controls the top slider
-      case W:
-        moveSlider(top, top->upper_left_x, top->upper_left_y - slider_y_speed, zone_width, zone_height);
-        break;
-      // Functionality for S Key that controls the top slider
-      case S:
-        moveSlider(top, top->upper_left_x, top->upper_left_y + slider_y_speed, zone_width, zone_height);
-        break;
-      default:
-        mvprintw(1, 5, "%c", c);
-        break;
-      }
-    }
-    refresh();
-    undraw_zone(z);
-    draw_zone(z);
-    undraw_ball(b);
-    moveBall(b);
-    checkCollisionSlider(bottom, b);
-    checkCollisionSlider(top, b);
-    checkCollisionWithZone(b, z);
-    draw_ball(b);
-    refresh();
-    // usleep(200000);
-    nanosleep(&tim, &tim_ret);
   }
+  endwin();
+}
+
+// Function to display the end game screen
+void end_game_screen(int zone_width, int zone_height)
+{
+  clear();
+  string end_message = "Game Over!";
+  string new_game_message = "Press 'N' for a New Game.";
+  string exit_message = "Press 'E' to Exit.";
+
+  mvprintw(zone_height / 2 - 1, (zone_width - end_message.length()) / 2, end_message.c_str());
+  mvprintw(zone_height / 2, (zone_width - new_game_message.length()) / 2, new_game_message.c_str());
+  mvprintw(zone_height / 2 + 1, (zone_width - exit_message.length()) / 2, exit_message.c_str());
+  refresh();
 }
