@@ -52,7 +52,7 @@ void air_hockey()
   draw_ball(b);
   refresh();
   // nodelay(stdscr, TRUE); // Do not wait for characters using getch.
-  halfdelay(5); // Wait for 1/10th of a second for user input
+  halfdelay(5); // Wait for 1/2th of a second for user input
   noecho();
   bool is_paused = false;
   int pause_input;

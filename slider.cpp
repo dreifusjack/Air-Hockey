@@ -45,6 +45,14 @@ const slider_t slider_types[2] = {
 // Changes the location of the slider
 void moveSlider(slider_t *s, int x, int y, int zone_width, int zone_height)
 {
+  if (s->type_str[0] == 't' && y > (zone_height / 2))
+  {
+    return;
+  }
+  if (s->type_str[0] == 'b' && y < (zone_height / 2))
+  {
+    return;
+  }
   if (x < 9 || y < 3)
   {
     return;
