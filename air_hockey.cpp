@@ -51,7 +51,8 @@ void air_hockey()
   draw_slider(bottom);
   draw_ball(b);
   refresh();
-  nodelay(stdscr, TRUE); // Do not wait for characters using getch.
+  // nodelay(stdscr, TRUE); // Do not wait for characters using getch.
+  halfdelay(5); // Wait for 1/10th of a second for user input
   noecho();
   bool is_paused = false;
   int pause_input;
@@ -87,7 +88,6 @@ void air_hockey()
           is_paused = false;
           break;
         }
-        //  std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Sleep to reduce CPU usage
       }
       // Clear the "Game Paused" message
       clear();
@@ -97,9 +97,6 @@ void air_hockey()
       draw_ball(b);
       refresh();
     }
-
-    // Example game loop delay
-    // std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Adjust the delay as needed
     // Move the current piece
     if ((arrow = read_escape(&c)) != NOCHAR)
     {
@@ -108,19 +105,36 @@ void air_hockey()
 
       // Functionality for Left Arrow Key that controls the bottom slider
       case LEFT:
-        mvprintw(1, 5, "L");
+        moveSlider(bottom, bottom->upper_left_x - slider_x_speed, bottom->upper_left_y, zone_width, zone_height);
+        refresh();
         break;
       // Functionality for Rigth Arrow Key that controls the bottom slider
       case RIGHT:
-        mvprintw(1, 5, "R");
+        moveSlider(bottom, bottom->upper_left_x + slider_x_speed, bottom->upper_left_y, zone_width, zone_height);
+        break;
+      // Functionality for Up Arrow Key that controls the bottom slider
+      case UP:
+        moveSlider(bottom, bottom->upper_left_x, bottom->upper_left_y - slider_y_speed, zone_width, zone_height);
+        break;
+      // Functionality for Down Arrow Key that controls the bottom slider
+      case DOWN:
+        moveSlider(bottom, bottom->upper_left_x, bottom->upper_left_y + slider_y_speed, zone_width, zone_height);
         break;
       // Functionality for A Key that controls the top slider
       case A:
-        mvprintw(1, 5, "A");
+        moveSlider(top, top->upper_left_x - slider_x_speed, top->upper_left_y, zone_width, zone_height);
         break;
-      case D:
         // Functionality for D Key that controls the top slider
-        mvprintw(1, 5, "D");
+      case D:
+        moveSlider(top, top->upper_left_x + slider_x_speed, top->upper_left_y, zone_width, zone_height);
+        break;
+      // Functionality for W Key that controls the top slider
+      case W:
+        moveSlider(top, top->upper_left_x, top->upper_left_y - slider_y_speed, zone_width, zone_height);
+        break;
+      // Functionality for S Key that controls the top slider
+      case S:
+        moveSlider(top, top->upper_left_x, top->upper_left_y + slider_y_speed, zone_width, zone_height);
         break;
       default:
         mvprintw(1, 5, "%c", c);
