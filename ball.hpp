@@ -2,7 +2,8 @@
 #include "slider.hpp"
 
 // ball_t holds all properties of the ball
-typedef struct ball {
+typedef struct ball
+{
   int upper_left_x;
   int upper_left_y;
   int speed_x;

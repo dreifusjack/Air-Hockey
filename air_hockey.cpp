@@ -34,7 +34,7 @@ using namespace std;
 // Main Game function
 void air_hockey()
 {
-  int zone_height, zone_width;
+  int zone_height, zone_width, goal_width; // goal width to be inputed by the user
   struct timespec tim = {0, 200000000};
   struct timespec tim_ret;
   int arrow, c;
@@ -44,6 +44,7 @@ void air_hockey()
   init_pair(1, COLOR_MAGENTA, COLOR_BLACK); // magenta color pair
   init_pair(2, COLOR_RED, COLOR_BLACK);     // red color pair
   init_pair(3, COLOR_BLUE, COLOR_BLACK);    // blue color pair
+  init_pair(4, COLOR_GREEN, COLOR_BLACK);   // green color pair
   getmaxyx(stdscr, zone_height, zone_width);
   zone_height -= 1;
   zone_width -= 1;
@@ -58,9 +59,34 @@ void air_hockey()
   // convert from ascii value to the correlated value, where 52 = 4, so 52-48 = 4
   slider_size -= 48;
 
+  string goal_width_prompt = "Enter a goal width (must be less than " + to_string(zone_width) + "): ";
+
+  do
+  {
+    mvprintw((zone_height / 2) + 1, (zone_width - 50) / 2, goal_width_prompt.c_str());
+    echo();
+    char input[10];
+    getstr(input);
+    string input_str(input);
+    if (input_str.empty() || (input_str.length() == 1 && input_str[0] == '\n'))
+    {
+      goal_width = zone_width - 1;
+    }
+    else
+    {
+
+      goal_width = stoi(input);
+    }
+    noecho();
+    if (goal_width >= zone_width)
+    {
+      mvprintw((zone_height / 2) + 2, (zone_width - 50) / 2, "Goal width must be less than the zone width. Try again.");
+    }
+  } while (goal_width >= zone_width);
   bool game_over = false;
   while (!game_over)
   {
+
     clear();
     zone_t *z = init_zone(0, 2, zone_width, zone_height - 2);
     ball_t *b = init_ball(zone_width / 2, zone_height / 2, 1, 1);
@@ -76,6 +102,8 @@ void air_hockey()
     noecho();
     bool is_paused = false;
     int in_game_input;
+
+    int top_score = 0, bottom_score = 0; // Initialize the scores
 
     string pause_instruction = "Press 'P' to pause/resume the game.";
     mvprintw(0, (zone_width - pause_instruction.length()) / 2, pause_instruction.c_str());
@@ -181,6 +209,9 @@ void air_hockey()
       int seconds = time_left % 60;
       mvprintw(0, 0, "Time left: %02d:%02d", minutes, seconds);
 
+      // Display the running game score
+      mvprintw(1, zone_width - 44, "Top player score: %d | Bottom player score: %d", top_score, bottom_score);
+
       // Move the current piece
       if ((arrow = read_escape(&c)) != NOCHAR)
       {
@@ -236,6 +267,29 @@ void air_hockey()
           break;
         }
       }
+      // Check if the ball is in the goal area
+      if (b->upper_left_y == 3 && b->upper_left_x >= (zone_width - goal_width) / 2 && b->upper_left_x <= (zone_width + goal_width) / 2)
+      {
+        bottom_score++;
+        refresh();
+        refresh();
+        undraw_zone(z);
+        draw_zone(z);
+        undraw_ball(b);
+        b = init_ball(zone_width / 2, zone_height / 2, 1, 1);
+        refresh();
+      }
+      else if (b->upper_left_y == zone_height - 1 && b->upper_left_x >= (zone_width - goal_width) / 2 && b->upper_left_x <= (zone_width + goal_width) / 2)
+      {
+        top_score++;
+        refresh();
+        undraw_zone(z);
+        draw_zone(z);
+        undraw_ball(b);
+        b = init_ball(zone_width / 2, zone_height / 2, 1, 1);
+        refresh();
+      }
+
       refresh();
       undraw_zone(z);
       draw_zone(z);
