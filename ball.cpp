@@ -42,11 +42,10 @@ bool checkCollisionSlider(slider_t *s, ball_t *b)
     int x_ball = b->upper_left_x;
     int y_ball = b->upper_left_y;
     int x, y;
-    for (x = 0; x < 4; x++)
+    for (x = 0; x < s->size; x++)
     {
         for (y = 0; y < 1; y++)
         {
-
             if (s->upper_left_y + y == y_ball && s->upper_left_x + x == x_ball)
             {
                 b->speed_y *= -1;
@@ -62,18 +61,26 @@ bool checkCollisionSlider(slider_t *s, ball_t *b)
 // Change X direction of the ball if it collides
 bool checkCollisionWithZone(ball_t *b, zone_t *z)
 {
+    bool ball_has_collided = false;
+
+    // check left, right zones
     if (b->upper_left_x <= z->upper_left_x || b->upper_left_x >= z->upper_left_x + z->width)
     {
         // Check if the ball is hitting the left or right wall of the zone
         b->speed_x *= -1;
-        return true;
+        ball_has_collided = true;
     }
-    else if (b->upper_left_y > z->height + 1 || b->upper_left_y < 3)
+
+    // check top, bottom zones (not including goal)
+    int goal_start_x = z->upper_left_x + ((z->width - z->goal_width) / 2) + 1;
+    bool ball_collides_y_zone = b->upper_left_x < goal_start_x || b->upper_left_x > goal_start_x + z->goal_width;
+    if (ball_collides_y_zone && (b->upper_left_y == z->upper_left_y || b->upper_left_y == z->upper_left_y + z->height))
     {
         b->speed_y *= -1;
-        return true;
+        ball_has_collided = true;
     }
-    return false;
+
+    return ball_has_collided;
 }
 
 // Inititialize ball with its position and speed in the X & Y directions

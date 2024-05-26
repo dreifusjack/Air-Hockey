@@ -26,7 +26,7 @@
 #include <cstdlib>
 
 // Initializes zone position and dimensions
-zone_t *init_zone(int upper_left_x, int upper_left_y, int width, int height)
+zone_t *init_zone(int upper_left_x, int upper_left_y, int width, int height, int goal_width)
 {
   zone_t *z;
   z = (zone_t *)malloc(sizeof(zone_t));
@@ -35,16 +35,19 @@ zone_t *init_zone(int upper_left_x, int upper_left_y, int width, int height)
   z->width = width - 10;
   z->height = height;
   z->draw_char = '#';
-  z->color_pair = 1;
+  z->zone_color = 1;
+  z->goal_char = '-';
+  z->goal_color = 4;
+  z->goal_width = goal_width;
   return (z);
 }
 
-// Renders zone on the screen
+// Renders zone on the screen with the goal
 void draw_zone(zone_t *z)
 {
   int row_counter, column_counter;
 
-  attron(COLOR_PAIR(z->color_pair)); // add colors
+  attron(COLOR_PAIR(z->zone_color)); // add colors
 
   // Draw the top side of the zone
   for (row_counter = z->upper_left_x; row_counter <= (z->upper_left_x + z->width); row_counter++)
@@ -67,13 +70,20 @@ void draw_zone(zone_t *z)
   // Draw Bottom of zone
   for (row_counter = z->upper_left_x; row_counter < (z->upper_left_x + z->width); row_counter++)
   {
-    // printf("%d\n", row_counter);
-    // printf("%d\n", z->upper_left_y + z->height);
     mvprintw((z->upper_left_y + z->height), row_counter, "%c", z->draw_char);
-    // printf("*****\n");
   }
 
-  attroff(COLOR_PAIR(z->color_pair)); // reset colors
+  // Draw top and bottom goal for zone
+  attron(COLOR_PAIR(z->goal_color));
+
+  int goal_start_x = z->upper_left_x + ((z->width - z->goal_width) / 2) + 1;
+  for (row_counter = goal_start_x; row_counter < goal_start_x + z->goal_width; row_counter++)
+  {
+    mvprintw(z->upper_left_y, row_counter, "%c", z->goal_char);
+    mvprintw((z->upper_left_y + z->height), row_counter, "%c", z->goal_char);
+  }
+
+  attroff(COLOR_PAIR(z->goal_color)); // reset colors
 }
 
 // Replaces the zone boundary with blank spaces

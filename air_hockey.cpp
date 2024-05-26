@@ -59,8 +59,9 @@ void air_hockey()
   // convert from ascii value to the correlated value, where 52 = 4, so 52-48 = 4
   slider_size -= 48;
 
-  string goal_width_prompt = "Enter a goal width (must be less than " + to_string(zone_width) + "). Press enter for defualt width: ";
-
+  // get goal size from the user before starting the game
+  int max_goal_width = zone_width - 10; // max goal width, taking account that the actual zone width is 10 less than inputted to handle padding.
+  string goal_width_prompt = "Enter a goal width (must be less than " + to_string(max_goal_width) + ". Press enter for default width): ";
   do
   {
     mvprintw((zone_height / 2) + 1, (zone_width - 50) / 2, goal_width_prompt.c_str());
@@ -68,26 +69,27 @@ void air_hockey()
     char input[10];
     getstr(input);
     string input_str(input);
+    // handle default input (empty string but user hit enter)
     if (input_str.empty() || (input_str.length() == 1 && input_str[0] == '\n'))
     {
-      goal_width = zone_width - 1;
+      goal_width = zone_width - 1 - 10; // 1 less than zone width, 10 less to handle padding
     }
     else
     {
-
       goal_width = stoi(input);
     }
     noecho();
-    if (goal_width >= zone_width)
+    if (goal_width >= max_goal_width)
     {
       mvprintw((zone_height / 2) + 2, (zone_width - 50) / 2, "Goal width must be less than the zone width. Try again.");
     }
-  } while (goal_width >= zone_width);
+  } while (goal_width >= max_goal_width);
+
   bool game_over = false;
   while (!game_over)
   {
     clear();
-    zone_t *z = init_zone(0, 2, zone_width, zone_height - 2);
+    zone_t *z = init_zone(0, 2, zone_width, zone_height - 2, goal_width);
     ball_t *b = init_ball(zone_width / 2, zone_height / 2, 1, 1);
     slider_t *top = init_slider(zone_width / 2, 5, 'T', slider_size);
     slider_t *bottom = init_slider(zone_width / 2, zone_height - 5, 'U', slider_size);
@@ -266,37 +268,33 @@ void air_hockey()
           break;
         }
       }
+
       // Check if the ball is in the goal area
-      if (b->upper_left_y == 3 && b->upper_left_x >= (zone_width - goal_width) / 2 && b->upper_left_x <= (zone_width + goal_width) / 2)
+      if (b->upper_left_y <= 3 && b->upper_left_x >= (zone_width - goal_width) / 2 && b->upper_left_x <= (zone_width + goal_width) / 2)
       {
         bottom_score++;
         refresh();
-        refresh();
-        undraw_zone(z);
-        draw_zone(z);
         undraw_ball(b);
-        b = init_ball(zone_width / 2, zone_height / 2, 1, 1);
+        b = init_ball(zone_width / 2, zone_height / 2, 1, 1); // reset ball to the center
         refresh();
       }
-      else if (b->upper_left_y == zone_height - 1 && b->upper_left_x >= (zone_width - goal_width) / 2 && b->upper_left_x <= (zone_width + goal_width) / 2)
+      else if (b->upper_left_y >= zone_height - 1 && b->upper_left_x >= (zone_width - goal_width) / 2 && b->upper_left_x <= (zone_width + goal_width) / 2)
       {
         top_score++;
         refresh();
-        undraw_zone(z);
-        draw_zone(z);
         undraw_ball(b);
-        b = init_ball(zone_width / 2, zone_height / 2, 1, 1);
+        b = init_ball(zone_width / 2, zone_height / 2, 1, 1); // reset ball to the center
         refresh();
       }
 
       refresh();
-      undraw_zone(z);
-      draw_zone(z);
       undraw_ball(b);
       moveBall(b);
       checkCollisionSlider(bottom, b);
       checkCollisionSlider(top, b);
       checkCollisionWithZone(b, z);
+      undraw_zone(z);
+      draw_zone(z);
       draw_ball(b);
       refresh();
       // usleep(200000);
