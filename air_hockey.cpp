@@ -59,7 +59,7 @@ void air_hockey()
   // convert from ascii value to the correlated value, where 52 = 4, so 52-48 = 4
   slider_size -= 48;
 
-  string goal_width_prompt = "Enter a goal width (must be less than " + to_string(zone_width) + "): ";
+  string goal_width_prompt = "Enter a goal width (must be less than " + to_string(zone_width) + "). Press enter for defualt width: ";
 
   do
   {
@@ -86,7 +86,6 @@ void air_hockey()
   bool game_over = false;
   while (!game_over)
   {
-
     clear();
     zone_t *z = init_zone(0, 2, zone_width, zone_height - 2);
     ball_t *b = init_ball(zone_width / 2, zone_height / 2, 1, 1);
