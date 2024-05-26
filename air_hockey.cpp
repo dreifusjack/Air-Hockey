@@ -34,7 +34,7 @@ using namespace std;
 // Main Game function
 void air_hockey()
 {
-  int zone_height, zone_width, goal_width; // goal width to be inputed by the user
+  int zone_height, zone_width; // goal width to be inputed by the user
   struct timespec tim = {0, 200000000};
   struct timespec tim_ret;
   int arrow, c;
@@ -50,40 +50,10 @@ void air_hockey()
   zone_width -= 1;
 
   // get the slider size from the user before starting the game
-  int slider_size;
-  do
-  {
-    mvprintw(zone_height / 2, (zone_width - 30) / 2, "Enter a slider size (4-7): ");
-    slider_size = getch();
-  } while (slider_size < 52 || slider_size > 55); // using ascii values for the numbers 4-7
-  // convert from ascii value to the correlated value, where 52 = 4, so 52-48 = 4
-  slider_size -= 48;
+  int slider_size = prompt_slider_size(zone_height, zone_width);
 
   // get goal size from the user before starting the game
-  int max_goal_width = zone_width - 10; // max goal width, taking account that the actual zone width is 10 less than inputted to handle padding.
-  string goal_width_prompt = "Enter a goal width (must be less than " + to_string(max_goal_width) + ". Press enter for default width): ";
-  do
-  {
-    mvprintw((zone_height / 2) + 1, (zone_width - 50) / 2, goal_width_prompt.c_str());
-    echo();
-    char input[10];
-    getstr(input);
-    string input_str(input);
-    // handle default input (empty string but user hit enter)
-    if (input_str.empty() || (input_str.length() == 1 && input_str[0] == '\n'))
-    {
-      goal_width = zone_width - 1 - 10; // 1 less than zone width, 10 less to handle padding
-    }
-    else
-    {
-      goal_width = stoi(input);
-    }
-    noecho();
-    if (goal_width >= max_goal_width)
-    {
-      mvprintw((zone_height / 2) + 2, (zone_width - 50) / 2, "Goal width must be less than the zone width. Try again.");
-    }
-  } while (goal_width >= max_goal_width);
+  int goal_width = prompt_goal_width(zone_height, zone_width);
 
   bool game_over = false;
   while (!game_over)
@@ -276,6 +246,7 @@ void air_hockey()
         refresh();
         undraw_ball(b);
         b = init_ball(zone_width / 2, zone_height / 2, 1, 1); // reset ball to the center
+        reset_sliders(top, bottom, zone_width, zone_height);  // reset the sliders to default positions
         refresh();
       }
       else if (b->upper_left_y >= zone_height - 1 && b->upper_left_x >= (zone_width - goal_width) / 2 && b->upper_left_x <= (zone_width + goal_width) / 2)
@@ -284,6 +255,7 @@ void air_hockey()
         refresh();
         undraw_ball(b);
         b = init_ball(zone_width / 2, zone_height / 2, 1, 1); // reset ball to the center
+        reset_sliders(top, bottom, zone_width, zone_height);  // reset the sliders to default positions
         refresh();
       }
 
@@ -302,6 +274,61 @@ void air_hockey()
     }
   }
   endwin();
+}
+
+// Prompts the user to enter a slider size for the game
+int prompt_slider_size(int zone_height, int zone_width)
+{
+  int slider_size;
+  do
+  {
+    mvprintw(zone_height / 2, (zone_width - 30) / 2, "Enter a slider size (4-7): ");
+    slider_size = getch();
+  } while (slider_size < 52 || slider_size > 55); // using ascii values for the numbers 4-7
+
+  // convert from ascii value to the correlated value, where 52 = 4, so 52-48 = 4
+  return slider_size - 48;
+}
+
+// Prompts the user to enter a goal width for the game
+int prompt_goal_width(int zone_height, int zone_width)
+{
+  int goal_width;
+
+  int max_goal_width = zone_width - 10; // max goal width, taking account that the actual zone width is 10 less than inputted to handle padding.
+  string goal_width_prompt = "Enter a goal width (must be less than " + to_string(max_goal_width) + ". Press enter for default width): ";
+
+  do
+  {
+    mvprintw((zone_height / 2) + 1, (zone_width - 50) / 2, goal_width_prompt.c_str());
+    echo();
+    char input[10];
+    getstr(input);
+    string input_str(input);
+    // handle default input (empty string but user hit enter)
+    if (input_str.empty() || (input_str.length() == 1 && input_str[0] == '\n'))
+    {
+      goal_width = zone_width - 1 - 10; // 1 less than zone width, 10 less to handle padding
+    }
+    else
+    {
+      goal_width = stoi(input);
+    }
+    noecho();
+    if (goal_width >= max_goal_width)
+    {
+      mvprintw((zone_height / 2) + 2, (zone_width - 50) / 2, "Goal width must be less than the zone width. Try again.");
+    }
+  } while (goal_width >= max_goal_width);
+
+  return goal_width;
+}
+
+// Resets the sliders to the center
+void reset_sliders(slider_t *top, slider_t *bottom, int width, int height)
+{
+  moveSlider(top, width / 2, 5, width, height);
+  moveSlider(bottom, width / 2, height - 5, width, height);
 }
 
 // Function to display the end game screen
