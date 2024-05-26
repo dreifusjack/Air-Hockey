@@ -28,8 +28,8 @@
 
 // This intializes the properties of the slider. Is by default size 4.
 const slider_t slider_types[2] = {
-    {"top", {{1, 1, 1, 1, 0, 0, 0}}, 0, 0, '%', {0, 0, 0}, 4},
-    {"bottom", {{1, 1, 1, 1, 0, 0, 0}}, 0, 0, '+', {0, 0, 0}, 4},
+    {"top", {{1, 1, 1, 1, 0, 0, 0}}, 0, 0, '%', 2, 4},
+    {"bottom", {{1, 1, 1, 1, 0, 0, 0}}, 0, 0, '+', 3, 4},
 };
 
 // Changes the location of the slider
@@ -87,6 +87,9 @@ slider_t *init_slider(int initial_x, int initial_y, char type, int size)
 void draw_slider(slider_t *s)
 {
   int x, y;
+
+  attron(COLOR_PAIR(s->color_pair)); // add colors
+
   for (x = 0; x < s->size; x++)
   {
     for (y = 0; y < 1; y++)
@@ -97,6 +100,8 @@ void draw_slider(slider_t *s)
       }
     }
   }
+
+  attroff(COLOR_PAIR(s->color_pair)); // reset colors
 }
 
 // Replaces the slider with blank spaces

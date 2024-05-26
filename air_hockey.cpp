@@ -40,6 +40,10 @@ void air_hockey()
   int arrow, c;
   int slider_x_speed = 4, slider_y_speed = 4;
   initscr();
+  start_color();                            // enable colors
+  init_pair(1, COLOR_MAGENTA, COLOR_BLACK); // magenta color pair
+  init_pair(2, COLOR_RED, COLOR_BLACK);     // red color pair
+  init_pair(3, COLOR_BLUE, COLOR_BLACK);    // blue color pair
   getmaxyx(stdscr, zone_height, zone_width);
   zone_height -= 1;
   zone_width -= 1;

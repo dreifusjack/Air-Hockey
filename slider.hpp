@@ -6,7 +6,7 @@ typedef struct slider
   int upper_left_x;
   int upper_left_y;
   char draw_char;
-  char color[3];
+  int color_pair;
   int size;
 } slider_t;
 
