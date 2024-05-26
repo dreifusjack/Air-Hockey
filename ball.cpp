@@ -62,12 +62,15 @@ bool checkCollisionSlider(slider_t *s, ball_t *b)
 // Change X direction of the ball if it collides
 bool checkCollisionWithZone(ball_t *b, zone_t *z)
 {
-
     if (b->upper_left_x <= z->upper_left_x || b->upper_left_x >= z->upper_left_x + z->width)
     {
+        // Check if the ball is hitting the left or right wall of the zone
         b->speed_x *= -1;
-        // b->speed_y *= -1;
-
+        return true;
+    }
+    else if (b->upper_left_y > z->height + 1 || b->upper_left_y < 3)
+    {
+        b->speed_y *= -1;
         return true;
     }
     return false;
