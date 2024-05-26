@@ -26,20 +26,10 @@
 #include <cstdlib>
 #include <cstring>
 
-// This intializes the properties of the slider
+// This intializes the properties of the slider. Is by default size 4.
 const slider_t slider_types[2] = {
-    {"top",
-     {{1, 1, 1, 1}},
-     0,
-     0,
-     '%',
-     {0, 0, 0}},
-    {"bottom",
-     {{1, 1, 1, 1}},
-     0,
-     0,
-     '+',
-     {0, 0, 0}},
+    {"top", {{1, 1, 1, 1, 0, 0, 0}}, 0, 0, '%', {0, 0, 0}, 4},
+    {"bottom", {{1, 1, 1, 1, 0, 0, 0}}, 0, 0, '+', {0, 0, 0}, 4},
 };
 
 // Changes the location of the slider
@@ -72,7 +62,7 @@ void moveSlider(slider_t *s, int x, int y, int zone_width, int zone_height)
 }
 
 // Intializes the slider
-slider_t *init_slider(int initial_x, int initial_y, char type)
+slider_t *init_slider(int initial_x, int initial_y, char type, int size)
 {
   slider_t *s = (slider *)malloc(sizeof(slider_t));
   if (type == 'T')
@@ -86,6 +76,10 @@ slider_t *init_slider(int initial_x, int initial_y, char type)
 
   s->upper_left_x = initial_x;
   s->upper_left_y = initial_y;
+  s->size = size;
+  // adjust the size of the piece if it is greater than 4 (the default)
+  for (int i = 0; i < size; i++)
+    s->piece[0][i] = 1;
   return (s);
 }
 
@@ -93,7 +87,7 @@ slider_t *init_slider(int initial_x, int initial_y, char type)
 void draw_slider(slider_t *s)
 {
   int x, y;
-  for (x = 0; x < 4; x++)
+  for (x = 0; x < s->size; x++)
   {
     for (y = 0; y < 1; y++)
     {
@@ -109,7 +103,7 @@ void draw_slider(slider_t *s)
 void undraw_slider(slider_t *s)
 {
   int x, y;
-  for (x = 0; x < 4; x++)
+  for (x = 0; x < s->size; x++)
   {
     for (y = 0; y < 1; y++)
     {

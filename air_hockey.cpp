@@ -44,15 +44,24 @@ void air_hockey()
   zone_height -= 1;
   zone_width -= 1;
 
-  bool game_over = false;
+  // get the slider size from the user before starting the game
+  int slider_size;
+  do
+  {
+    mvprintw(zone_height / 2, (zone_width - 30) / 2, "Enter a slider size (4-7): ");
+    slider_size = getch();
+  } while (slider_size < 52 || slider_size > 55); // using ascii values for the numbers 4-7
+  // convert from ascii value to the correlated value, where 52 = 4, so 52-48 = 4
+  slider_size -= 48;
 
+  bool game_over = false;
   while (!game_over)
   {
     clear();
     zone_t *z = init_zone(0, 2, zone_width, zone_height - 2);
     ball_t *b = init_ball(zone_width / 2, zone_height / 2, 1, 1);
-    slider_t *top = init_slider(zone_width / 2, 5, 'T');
-    slider_t *bottom = init_slider(zone_width / 2, zone_height - 5, 'U');
+    slider_t *top = init_slider(zone_width / 2, 5, 'T', slider_size);
+    slider_t *bottom = init_slider(zone_width / 2, zone_height - 5, 'U', slider_size);
     draw_zone(z);
     draw_slider(top);
     draw_slider(bottom);
