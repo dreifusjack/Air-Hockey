@@ -45,18 +45,22 @@ const slider_t slider_types[2] = {
 // Changes the location of the slider
 void moveSlider(slider_t *s, int x, int y, int zone_width, int zone_height)
 {
+  // if trying to move top slider below the center line
   if (s->type_str[0] == 't' && y > (zone_height / 2))
   {
     return;
   }
+  // if trying to move bottom slider above the center line
   if (s->type_str[0] == 'b' && y < (zone_height / 2))
   {
     return;
   }
+  // if the slider goes outside of the padding for the zone (left and top)
   if (x < 9 || y < 3)
   {
     return;
   }
+  // if the slider goes outside the zone with (bottom and right)
   if (x + 4 > zone_width || y + 1 > zone_height)
   {
     return;

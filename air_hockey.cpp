@@ -38,7 +38,7 @@ void air_hockey()
   struct timespec tim = {0, 200000000};
   struct timespec tim_ret;
   int arrow, c;
-  int slider_x_speed = 5, slider_y_speed = 5;
+  int slider_x_speed = 4, slider_y_speed = 4;
   initscr();
   getmaxyx(stdscr, zone_height, zone_width);
   zone_height -= 1;
@@ -171,41 +171,52 @@ void air_hockey()
       // Move the current piece
       if ((arrow = read_escape(&c)) != NOCHAR)
       {
+        int bottom_x = bottom->upper_left_x;
+        int bottom_y = bottom->upper_left_y;
+        int top_x = top->upper_left_x;
+        int top_y = top->upper_left_y;
+
         switch (arrow)
         {
-
         // Functionality for Left Arrow Key that controls the bottom slider
         case LEFT:
-          moveSlider(bottom, bottom->upper_left_x - slider_x_speed, bottom->upper_left_y, zone_width, zone_height);
-          refresh();
+          moveSlider(bottom, bottom_x - slider_x_speed, bottom_y, zone_width, zone_height);
+          mvprintw(1, 5, "L");
           break;
         // Functionality for Rigth Arrow Key that controls the bottom slider
         case RIGHT:
-          moveSlider(bottom, bottom->upper_left_x + slider_x_speed, bottom->upper_left_y, zone_width, zone_height);
+          moveSlider(bottom, bottom_x + slider_x_speed, bottom_y, zone_width, zone_height);
+          mvprintw(1, 5, "R");
           break;
         // Functionality for Up Arrow Key that controls the bottom slider
         case UP:
-          moveSlider(bottom, bottom->upper_left_x, bottom->upper_left_y - slider_y_speed, zone_width, zone_height);
+          moveSlider(bottom, bottom_x, bottom_y - slider_y_speed, zone_width, zone_height);
+          mvprintw(1, 5, "U");
           break;
         // Functionality for Down Arrow Key that controls the bottom slider
         case DOWN:
-          moveSlider(bottom, bottom->upper_left_x, bottom->upper_left_y + slider_y_speed, zone_width, zone_height);
+          moveSlider(bottom, bottom_x, bottom_y + slider_y_speed, zone_width, zone_height);
+          mvprintw(1, 5, "D");
           break;
         // Functionality for A Key that controls the top slider
         case A:
-          moveSlider(top, top->upper_left_x - slider_x_speed, top->upper_left_y, zone_width, zone_height);
+          moveSlider(top, top_x - slider_x_speed, top_y, zone_width, zone_height);
+          mvprintw(1, 5, "a");
           break;
           // Functionality for D Key that controls the top slider
         case D:
-          moveSlider(top, top->upper_left_x + slider_x_speed, top->upper_left_y, zone_width, zone_height);
+          moveSlider(top, top_x + slider_x_speed, top_y, zone_width, zone_height);
+          mvprintw(1, 5, "d");
           break;
         // Functionality for W Key that controls the top slider
         case W:
-          moveSlider(top, top->upper_left_x, top->upper_left_y - slider_y_speed, zone_width, zone_height);
+          moveSlider(top, top_x, top_y - slider_y_speed, zone_width, zone_height);
+          mvprintw(1, 5, "w");
           break;
         // Functionality for S Key that controls the top slider
         case S:
-          moveSlider(top, top->upper_left_x, top->upper_left_y + slider_y_speed, zone_width, zone_height);
+          moveSlider(top, top_x, top_y + slider_y_speed, zone_width, zone_height);
+          mvprintw(1, 5, "s");
           break;
         default:
           mvprintw(1, 5, "%c", c);
