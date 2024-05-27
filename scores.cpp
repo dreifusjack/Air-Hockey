@@ -79,7 +79,7 @@ void save_score(int score)
 int calculate_score(int goals, int time)
 {
   double raw_score = (static_cast<double>(goals) / time) * 1000;
-  return static_cast<int>(floor(raw_score));
+  return max(0, static_cast<int>(floor(raw_score)));
 }
 
 /**

@@ -370,7 +370,7 @@ void end_game_screen(int zone_width, int zone_height, int top_goals, int bottom_
 
   // Display the current top 10 scores
   vector<int> scores = get_scores();
-  mvprintw(2, 2, "Top 10 Scores:");
+  mvprintw(2, 2, "Top 10 Scores (calculated goals/seconds * 1000):");
   for (size_t i = 0; i < scores.size(); i++)
   {
     mvprintw(3 + i, 2, "%zu: %d", i + 1, scores[i]);
