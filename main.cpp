@@ -25,8 +25,8 @@
 #include <ncurses.h>
 #include <stdio.h>
 
-int main() {
-  // air_hockey();
+int main()
+{
   welcome_page();
   return 0;
 }

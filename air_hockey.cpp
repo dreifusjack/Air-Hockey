@@ -33,6 +33,10 @@
 #include <vector>
 using namespace std;
 
+int top_wins = 0;
+int bottom_wins = 0;
+int match_length = 0;
+
 // Main Game function
 void air_hockey()
 {
@@ -50,6 +54,9 @@ void air_hockey()
   getmaxyx(stdscr, zone_height, zone_width);
   zone_height -= 1;
   zone_width -= 1;
+
+  // get the number of games to be played from the user before starting the game
+  int game_count = prompt_game_count(zone_height, zone_width);
 
   // get the slider size from the user before starting the game
   int slider_size = prompt_slider_size(zone_height, zone_width);
@@ -98,7 +105,8 @@ void air_hockey()
       else if (in_game_input == 'Q' || in_game_input == 'q')
       {
         in_game = false;
-        end_game_screen(zone_width, zone_height, top_score, bottom_score, start_time);
+        end_game_screen(zone_width, zone_height, top_score, bottom_score, start_time, game_count);
+        game_count--;
         int end_choice;
         while (true)
         {
@@ -155,7 +163,8 @@ void air_hockey()
       if (time_left <= 0)
       {
         in_game = false;
-        end_game_screen(zone_width, zone_height, top_score, bottom_score, start_time);
+        end_game_screen(zone_width, zone_height, top_score, bottom_score, start_time, game_count);
+        game_count--;
         int end_choice;
         while (true)
         {
@@ -323,56 +332,127 @@ int prompt_goal_width(int zone_height, int zone_width)
   return goal_width;
 }
 
-// Function to display the end game screen
-void end_game_screen(int zone_width, int zone_height, int top_goals, int bottom_goals, chrono::steady_clock::time_point start_time)
+// Prompts the user to enter the ammount of games to be played
+int prompt_game_count(int zone_height, int zone_width)
 {
-  clear();
-  string end_message = "Game Over!";
-  string new_game_message = "Press 'N' for a New Game.";
-  string exit_message = "Press 'E' to Exit.";
+  int game_count;
+  do
+  {
+    mvprintw((zone_height / 2) - 1, (zone_width - 30) / 2, "Enter the number of games to play (max of 9): ");
+    game_count = getch();
+  } while (game_count < 49 || game_count > 57); // using ascii values for the numbers 0-9
 
-  string winner;
-  if (top_goals > bottom_goals)
+  // convert from ascii value to the correlated value, where 48 = 0, so 48-48 = 0
+  return game_count - 48;
+}
+
+// Function to display the end game screen
+void end_game_screen(int zone_width, int zone_height, int top_goals, int bottom_goals, chrono::steady_clock::time_point start_time, int game_count)
+{
+  if (game_count == 1)
   {
-    winner = "Top Player Wins!";
-  }
-  else if (bottom_goals > top_goals)
-  {
-    winner = "Bottom Player Wins!";
+    clear();
+    string end_message = "Game Over!";
+    string exit_message = "Press 'E' to Exit.";
+    string top_wins_message = "Top Player Wins: " + to_string(top_wins);
+    string botton_wins_message = "Bottom Player Wins: " + to_string(bottom_wins);
+
+    string winner;
+    if (top_wins > bottom_wins)
+    {
+      winner = "Top Player Wins the Game!";
+    }
+    else if (bottom_wins > top_wins)
+    {
+      winner = "Bottom Player Wins the Game!";
+    }
+    else
+    {
+      winner = "It's a Draw!";
+    }
+
+    // Calculate time taken
+    auto end_time = chrono::steady_clock::now();
+    auto duration = chrono::duration_cast<chrono::seconds>(end_time - start_time).count();
+    match_length += duration;
+    int minutes = match_length / 60;
+    int seconds = match_length % 60;
+    string time_taken = "Time Taken: " + to_string(minutes) + "m " + to_string(seconds) + "s";
+
+    // Try saving the score to see if it is in the top 10 for the top and bottom player
+    int top_score = calculate_score(top_goals, duration);
+    int bottom_score = calculate_score(bottom_goals, duration);
+    save_score(top_score);
+    save_score(bottom_score);
+
+    // Display the end of game info
+    mvprintw(zone_height / 2 - 2, (zone_width - end_message.length()) / 2, end_message.c_str());
+    mvprintw(zone_height / 2 - 1, (zone_width - winner.length()) / 2, winner.c_str());
+    mvprintw(zone_height / 2, (zone_width - time_taken.length()) / 2, time_taken.c_str());
+    mvprintw(zone_height / 2 + 1, (zone_width - top_wins_message.length()) / 2, top_wins_message.c_str());
+    mvprintw(zone_height / 2 + 2, (zone_width - botton_wins_message.length()) / 2, botton_wins_message.c_str());
+    mvprintw(zone_height / 2 + 3, (zone_width - exit_message.length()) / 2, exit_message.c_str());
+    refresh();
+    // Display the current top 10 scores
+    vector<int> scores = get_scores();
+    mvprintw(2, 2, "Top 10 Scores:");
+    for (size_t i = 0; i < scores.size(); i++)
+    {
+      mvprintw(3 + i, 2, "%zu: %d", i + 1, scores[i]);
+    }
   }
   else
   {
-    winner = "It's a Draw!";
-  }
+    clear();
+    string round_message = "Round Over!";
+    string new_round_message = "Press 'N' for the next Round.";
+    string exit_message = "Press 'E' to Exit.";
 
-  // Calculate time taken
-  auto end_time = chrono::steady_clock::now();
-  auto duration = chrono::duration_cast<chrono::seconds>(end_time - start_time).count();
-  int minutes = duration / 60;
-  int seconds = duration % 60;
-  string time_taken = "Time Taken: " + to_string(minutes) + "m " + to_string(seconds) + "s";
+    string winner;
+    if (top_goals > bottom_goals)
+    {
+      winner = "Top Player Wins the Round!";
+      top_wins++;
+    }
+    else if (bottom_goals > top_goals)
+    {
+      winner = "Bottom Player Wins the Round!";
+      bottom_wins++;
+    }
+    else
+    {
+      winner = "It's a Draw!";
+    }
+    // Calculate time taken
+    auto end_time = chrono::steady_clock::now();
+    auto duration = chrono::duration_cast<chrono::seconds>(end_time - start_time).count();
+    int minutes = duration / 60;
+    int seconds = duration % 60;
+    string time_taken = "Time Taken: " + to_string(minutes) + "m " + to_string(seconds) + "s";
+    match_length += duration;
 
-  // Try saving the score to see if it is in the top 10 for the top and bottom player
-  int top_score = calculate_score(top_goals, duration);
-  int bottom_score = calculate_score(bottom_goals, duration);
-  save_score(top_score);
-  save_score(bottom_score);
+    // Try saving the score to see if it is in the top 10 for the top and bottom player
+    int top_score = calculate_score(top_goals, duration);
+    int bottom_score = calculate_score(bottom_goals, duration);
+    save_score(top_score);
+    save_score(bottom_score);
 
-  // Display the end of round info
-  mvprintw(zone_height / 2 - 2, (zone_width - end_message.length()) / 2, end_message.c_str());
-  mvprintw(zone_height / 2 - 1, (zone_width - winner.length()) / 2, winner.c_str());
-  mvprintw(zone_height / 2, (zone_width - time_taken.length()) / 2, time_taken.c_str());
-  mvprintw(zone_height / 2 + 1, (zone_width - 44) / 2, "Top player goals: %d | Top player score: %d", top_goals, top_score);
-  mvprintw(zone_height / 2 + 2, (zone_width - 50) / 2, "Bottom player goals: %d | Bottom player score: %d", bottom_goals, bottom_score);
-  mvprintw(zone_height / 2 + 3, (zone_width - new_game_message.length()) / 2, new_game_message.c_str());
-  mvprintw(zone_height / 2 + 4, (zone_width - exit_message.length()) / 2, exit_message.c_str());
-  refresh();
+    // Display the end of round info
+    mvprintw(zone_height / 2 - 2, (zone_width - round_message.length()) / 2, round_message.c_str());
+    mvprintw(zone_height / 2 - 1, (zone_width - winner.length()) / 2, winner.c_str());
+    mvprintw(zone_height / 2, (zone_width - time_taken.length()) / 2, time_taken.c_str());
+    mvprintw(zone_height / 2 + 1, (zone_width - 44) / 2, "Top player goals: %d | Top player score: %d", top_goals, top_score);
+    mvprintw(zone_height / 2 + 2, (zone_width - 50) / 2, "Bottom player goals: %d | Bottom player score: %d", bottom_goals, bottom_score);
+    mvprintw(zone_height / 2 + 3, (zone_width - new_round_message.length()) / 2, new_round_message.c_str());
+    mvprintw(zone_height / 2 + 4, (zone_width - exit_message.length()) / 2, exit_message.c_str());
+    refresh();
 
-  // Display the current top 10 scores
-  vector<int> scores = get_scores();
-  mvprintw(2, 2, "Top 10 Scores:");
-  for (size_t i = 0; i < scores.size(); i++)
-  {
-    mvprintw(3 + i, 2, "%zu: %d", i + 1, scores[i]);
+    // Display the current top 10 scores
+    vector<int> scores = get_scores();
+    mvprintw(2, 2, "Top 10 Scores:");
+    for (size_t i = 0; i < scores.size(); i++)
+    {
+      mvprintw(3 + i, 2, "%zu: %d", i + 1, scores[i]);
+    }
   }
 }
