@@ -455,4 +455,3 @@ void end_game_screen(int zone_width, int zone_height, int top_goals, int bottom_
       mvprintw(3 + i, 2, "%zu: %d", i + 1, scores[i]);
     }
   }
-}
