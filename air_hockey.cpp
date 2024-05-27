@@ -324,13 +324,6 @@ int prompt_goal_width(int zone_height, int zone_width)
   return goal_width;
 }
 
-// Resets the sliders to the center
-void reset_sliders(slider_t *top, slider_t *bottom, int width, int height)
-{
-  moveSlider(top, width / 2, 5, width, height);
-  moveSlider(bottom, width / 2, height - 5, width, height);
-}
-
 // Function to display the end game screen
 void end_game_screen(int zone_width, int zone_height)
 {

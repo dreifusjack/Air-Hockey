@@ -119,3 +119,10 @@ void undraw_slider(slider_t *s)
     }
   }
 }
+
+// Resets the sliders to the center
+void reset_sliders(slider_t *top, slider_t *bottom, int width, int height)
+{
+  moveSlider(top, width / 2, 5, width, height);
+  moveSlider(bottom, width / 2, height - 5, width, height);
+}
