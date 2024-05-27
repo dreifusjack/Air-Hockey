@@ -9,7 +9,7 @@ LIBS=-lncurses
 _DEPS = 
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o slider.o air_hockey.o zone.o ball.o key.o
+_OBJ = main.o slider.o air_hockey.o zone.o ball.o key.o scores.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: %.cpp $(DEPS)

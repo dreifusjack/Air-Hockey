@@ -119,9 +119,10 @@ void welcome_page()
       "2. Strike the puck with your mallet to score goals.",
       "3. A goal is counted only if the puck fully drops in the goal area.",
       "4. Rebounds or pucks halfway in the goal area do not count.",
-      "5. See the score at the top of the screen."};
+      "5. See the goals at the top of the screen.",
+      "6. The final score is calculated based on the number of goals scored in a time."};
 
-  for (int i = 0; i < 5; ++i)
+  for (int i = 0; i < 6; ++i)
   {
     mvprintw(zone_height / 2 - 2 + i, (zone_width - scoring_summary[i].length()) / 2, scoring_summary[i].c_str());
   }
