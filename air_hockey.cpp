@@ -34,7 +34,7 @@ using namespace std;
 // Main Game function
 void air_hockey()
 {
-  int zone_height, zone_width; // goal width to be inputed by the user
+  int zone_height, zone_width;
   struct timespec tim = {0, 200000000};
   struct timespec tim_ret;
   int arrow, c;
@@ -69,20 +69,12 @@ void air_hockey()
     draw_ball(b);
     refresh();
     // nodelay(stdscr, TRUE); // Do not wait for characters using getch.
-    halfdelay(5); // Wait for 1/2th of a second for user input
+    halfdelay(3); // Wait for 1/2th of a second for user input
     noecho();
     bool is_paused = false;
     int in_game_input;
 
     int top_score = 0, bottom_score = 0; // Initialize the scores
-
-    string pause_instruction = "Press 'P' to pause/resume the game.";
-    mvprintw(0, (zone_width - pause_instruction.length()) / 2, pause_instruction.c_str());
-    refresh();
-
-    string end_instruction = "Press 'Q' to end the game.";
-    mvprintw(1, (zone_width - end_instruction.length()) / 2, end_instruction.c_str());
-    refresh();
 
     // timer for the game
     auto start_time = chrono::steady_clock::now();
@@ -92,6 +84,7 @@ void air_hockey()
 
     while (in_game)
     {
+      refresh();
       // Check for user input
       nodelay(stdscr, TRUE); // Non-blocking getch
       in_game_input = getch();
@@ -103,7 +96,7 @@ void air_hockey()
       else if (in_game_input == 'Q' || in_game_input == 'q')
       {
         in_game = false;
-        end_game_screen(zone_width, zone_height);
+        end_game_screen(zone_width, zone_height, top_score, bottom_score, start_time);
         int end_choice;
         while (true)
         {
@@ -124,7 +117,6 @@ void air_hockey()
           }
         }
       }
-
       if (is_paused)
       {
         // Display "Game Paused" message
@@ -150,13 +142,18 @@ void air_hockey()
         draw_ball(b);
         refresh();
       }
+      // Display the pause and end game instructions at the top of the program
+      string pause_instruction = "Press 'P' to pause/resume the game.";
+      string end_instruction = "Press 'Q' to end the game.";
+      mvprintw(0, (zone_width - pause_instruction.length()) / 2, pause_instruction.c_str());
+      mvprintw(1, (zone_width - end_instruction.length()) / 2, end_instruction.c_str());
 
       auto current_time = chrono::steady_clock::now();
       auto time_left = chrono::duration_cast<chrono::seconds>(end_time - current_time).count();
       if (time_left <= 0)
       {
         in_game = false;
-        end_game_screen(zone_width, zone_height);
+        end_game_screen(zone_width, zone_height, top_score, bottom_score, start_time);
         int end_choice;
         while (true)
         {
@@ -323,17 +320,40 @@ int prompt_goal_width(int zone_height, int zone_width)
 
   return goal_width;
 }
-
 // Function to display the end game screen
-void end_game_screen(int zone_width, int zone_height)
+void end_game_screen(int zone_width, int zone_height, int top_score, int bottom_score, chrono::steady_clock::time_point start_time)
 {
   clear();
   string end_message = "Game Over!";
   string new_game_message = "Press 'N' for a New Game.";
   string exit_message = "Press 'E' to Exit.";
 
-  mvprintw(zone_height / 2 - 1, (zone_width - end_message.length()) / 2, end_message.c_str());
-  mvprintw(zone_height / 2, (zone_width - new_game_message.length()) / 2, new_game_message.c_str());
-  mvprintw(zone_height / 2 + 1, (zone_width - exit_message.length()) / 2, exit_message.c_str());
+  string winner;
+  if (top_score > bottom_score)
+  {
+    winner = "Top Player Wins!";
+  }
+  else if (bottom_score > top_score)
+  {
+    winner = "Bottom Player Wins!";
+  }
+  else
+  {
+    winner = "It's a Draw!";
+  }
+
+  // Calculate time taken
+  auto end_time = chrono::steady_clock::now();
+  auto duration = chrono::duration_cast<chrono::seconds>(end_time - start_time).count();
+  int minutes = duration / 60;
+  int seconds = duration % 60;
+  string time_taken = "Time Taken: " + to_string(minutes) + "m " + to_string(seconds) + "s";
+
+  mvprintw(zone_height / 2 - 2, (zone_width - end_message.length()) / 2, end_message.c_str());
+  mvprintw(zone_height / 2 - 1, (zone_width - winner.length()) / 2, winner.c_str());
+  mvprintw(zone_height / 2, (zone_width - time_taken.length()) / 2, time_taken.c_str());
+  mvprintw(zone_height / 2 + 1, (zone_width - 44) / 2, "Top player score: %d | Bottom player score: %d", top_score, bottom_score);
+  mvprintw(zone_height / 2 + 2, (zone_width - new_game_message.length()) / 2, new_game_message.c_str());
+  mvprintw(zone_height / 2 + 3, (zone_width - exit_message.length()) / 2, exit_message.c_str());
   refresh();
 }
