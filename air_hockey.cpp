@@ -76,7 +76,7 @@ void air_hockey()
   while (!game_over)
   {
     clear();
-    zone_t *z = init_zone(0, 2, zone_width, zone_height - 3, goal_width);
+    zone_t *z = init_zone(0, 3, zone_width, zone_height - 3, goal_width);
     ball_t *b = init_ball(zone_width / 2, zone_height / 2, ball_speed, ball_speed);
     slider_t *top = init_slider(zone_width / 2, 5, 'T', slider_size);
     slider_t *bottom = init_slider(zone_width / 2, zone_height - 6, 'U', slider_size);
@@ -196,7 +196,7 @@ void air_hockey()
       mvprintw(0, 0, "Time left: %02d:%02d", minutes, seconds);
 
       // Display the running game score
-      mvprintw(1, zone_width - 44, "Top player score: %d | Bottom player score: %d", top_score, bottom_score);
+      mvprintw(2, zone_width - 44, "Top player score: %d | Bottom player score: %d", top_score, bottom_score);
 
       // Move the current piece
       if ((arrow = read_escape(&c)) != NOCHAR)
