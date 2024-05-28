@@ -76,10 +76,10 @@ void air_hockey()
   while (!game_over)
   {
     clear();
-    zone_t *z = init_zone(0, 2, zone_width, zone_height - 2, goal_width);
+    zone_t *z = init_zone(0, 2, zone_width, zone_height - 3, goal_width);
     ball_t *b = init_ball(zone_width / 2, zone_height / 2, ball_speed, ball_speed);
     slider_t *top = init_slider(zone_width / 2, 5, 'T', slider_size);
-    slider_t *bottom = init_slider(zone_width / 2, zone_height - 5, 'U', slider_size);
+    slider_t *bottom = init_slider(zone_width / 2, zone_height - 6, 'U', slider_size);
     draw_zone(z);
     draw_slider(top);
     draw_slider(bottom);
