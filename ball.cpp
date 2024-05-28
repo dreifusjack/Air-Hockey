@@ -95,7 +95,7 @@ bool checkCollisionWithZone(ball_t *b, zone_t *z)
   // check top, bottom zones (not including goal)
   int goal_start_x = z->upper_left_x + ((z->width - z->goal_width) / 2) + 1;
   bool ball_collides_y_zone = b->upper_left_x < goal_start_x || b->upper_left_x > goal_start_x + z->goal_width;
-  if (ball_collides_y_zone && (b->upper_left_y == z->upper_left_y || b->upper_left_y == z->upper_left_y + z->height))
+  if (ball_collides_y_zone && (b->upper_left_y <= z->upper_left_y || b->upper_left_y >= z->upper_left_y + z->height))
   {
     b->speed_y *= -1;
     ball_has_collided = true;
