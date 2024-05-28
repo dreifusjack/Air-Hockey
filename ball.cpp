@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cstdbool>
+#include <cmath>
 #include <ncurses.h>
 #include "key.hpp"
 #include "ball.hpp"
@@ -46,10 +47,30 @@ bool checkCollisionSlider(slider_t *s, ball_t *b)
   {
     for (y = 0; y < 1; y++)
     {
-      if (s->upper_left_y + y == y_ball && s->upper_left_x + x == x_ball)
+      // if the x-pos match
+      if (s->upper_left_x + x == x_ball)
       {
-        b->speed_y *= -1;
-        return true;
+        // if y-pos match exactly
+        if (s->upper_left_y + y == y_ball)
+        {
+          b->speed_y *= -1;
+          return true;
+        }
+        // if the speed is 2, and the ball is within 1 of the slider. this is necessary
+        // because the ball may "jump" over the slider if the y-pos doesn't match exactly
+        if ((b->speed_y == 2 || b->speed_y == 3) && abs(s->upper_left_y + y - y_ball) == 1)
+        {
+          b->speed_y *= -1;
+          return true;
+        }
+        // same thing if the speed is 3, and the ball is within 2 of the slider, it will rebound
+        // after the next frame, since without this check the ball pos would be 1 below the slider
+        // and technically never "collided"
+        if (b->speed_y == 3 && abs(s->upper_left_y + y - y_ball) == 2)
+        {
+          b->speed_y *= -1;
+          return true;
+        }
       }
     }
   }
