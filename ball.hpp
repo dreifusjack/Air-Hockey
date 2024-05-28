@@ -1,5 +1,6 @@
 #include "zone.hpp"
 #include "slider.hpp"
+#include "air_hockey.hpp"
 
 // ball_t holds all properties of the ball
 typedef struct ball
@@ -17,4 +18,5 @@ void draw_ball(ball_t *b);
 void undraw_ball(ball_t *b);
 bool checkCollisionWithZone(ball_t *b, zone_t *z);
 bool checkCollisionSlider(slider_t *s, ball_t *b);
+bool checkCollisionWithObstacles(ball_t *b, const vector<Obstacle> &obstacles);
 void moveBall(ball_t *b);

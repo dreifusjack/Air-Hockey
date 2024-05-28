@@ -19,6 +19,7 @@
  *
  * Additional copyrights may follow
  */
+
 #include "key.hpp"
 #include "ball.hpp"
 #include "air_hockey.hpp"
@@ -37,6 +38,40 @@ int top_wins = 0;
 int bottom_wins = 0;
 int match_length = 0;
 
+// Function to generate random obstacle positions
+vector<Obstacle> generate_obstacles(int zone_width, int zone_height)
+{
+  vector<Obstacle> obstacles;
+  srand(time(0));
+  for (int i = 0; i < 2; ++i)
+  {
+    if (i == 0)
+    {
+      int x = zone_width / 2 + 4;
+      int y = zone_height / 2;
+      obstacles.push_back({x, y});
+    }
+    else
+    {
+      int x = zone_width / 3 - 13;
+      int y = zone_height / 3;
+      obstacles.push_back({x, y});
+    }
+  }
+  return obstacles;
+}
+
+// Function to draw obstacles
+void draw_obstacles(const vector<Obstacle> &obstacles)
+{
+  for (const auto &obs : obstacles)
+  {
+    attron(COLOR_PAIR(5)); // add colors
+    mvprintw(obs.y, obs.x, "#####");
+  }
+  attroff(COLOR_PAIR(5)); // reset colors
+}
+
 // Main Game function
 void air_hockey()
 {
@@ -51,6 +86,7 @@ void air_hockey()
   init_pair(2, COLOR_RED, COLOR_BLACK);     // red color pair
   init_pair(3, COLOR_BLUE, COLOR_BLACK);    // blue color pair
   init_pair(4, COLOR_GREEN, COLOR_BLACK);   // green color pair
+  init_pair(5, COLOR_YELLOW, COLOR_BLACK);  // yellow color pair
   getmaxyx(stdscr, zone_height, zone_width);
   zone_height -= 1;
   zone_width -= 1;
@@ -72,6 +108,13 @@ void air_hockey()
   // get goal size from the user before starting the game
   int goal_width = prompt_goal_width(zone_height, zone_width);
 
+  // Generate obstacles if difficulty is hard
+  vector<Obstacle> obstacles;
+  if (difficulty == 3)
+  {
+    obstacles = generate_obstacles(zone_width, zone_height);
+  }
+
   bool game_over = false;
   while (!game_over)
   {
@@ -84,8 +127,8 @@ void air_hockey()
     draw_slider(top);
     draw_slider(bottom);
     draw_ball(b);
+    draw_obstacles(obstacles); // Draw obstacles
     refresh();
-    // nodelay(stdscr, TRUE); // Do not wait for characters using getch.
     halfdelay(3); // Wait for 1/2th of a second for user input
     noecho();
     bool is_paused = false;
@@ -157,6 +200,7 @@ void air_hockey()
         draw_slider(top);
         draw_slider(bottom);
         draw_ball(b);
+        draw_obstacles(obstacles); // Redraw obstacles
         refresh();
       }
       // Display the pause and end game instructions at the top of the program
@@ -280,6 +324,7 @@ void air_hockey()
       checkCollisionSlider(bottom, b);
       checkCollisionSlider(top, b);
       checkCollisionWithZone(b, z);
+      checkCollisionWithObstacles(b, obstacles);
       undraw_zone(z);
       draw_zone(z);
       draw_ball(b);

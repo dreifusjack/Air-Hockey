@@ -78,6 +78,32 @@ bool checkCollisionSlider(slider_t *s, ball_t *b)
   return false;
 }
 
+// Function to check ball collision with obstacles
+bool checkCollisionWithObstacles(ball_t *b, const vector<Obstacle> &obstacles)
+{
+  int y_ball = b->upper_left_y;
+  int x_ball = b->upper_left_x;
+  for (const auto &obs : obstacles)
+  {
+    for (int x = 0; x < 5; x++)
+    {
+      for (int y = 0; y < 1; y++)
+      {
+        if (obs.x + x == x_ball)
+        {
+          if (abs(obs.y + y - y_ball) == 2)
+          {
+            b->speed_y *= -1;
+            return true;
+          }
+        }
+      }
+    }
+  }
+  draw_obstacles(obstacles);
+  return false;
+}
+
 // Check if the ball collides with the left walls of the zone.
 // Change X direction of the ball if it collides
 bool checkCollisionWithZone(ball_t *b, zone_t *z)
