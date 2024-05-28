@@ -260,8 +260,8 @@ void air_hockey()
         bottom_score++;
         refresh();
         undraw_ball(b);
-        b = init_ball(zone_width / 2, zone_height / 2, ball_speed, ball_speed); // reset ball to the center
-        reset_sliders(top, bottom, zone_width, zone_height);                    // reset the sliders to default positions
+        b = init_ball((zone_width / 2) - ball_speed, (zone_height / 2) - ball_speed, ball_speed, ball_speed); // reset ball to the center
+        reset_sliders(top, bottom, zone_width, zone_height);                                                  // reset the sliders to default positions
         refresh();
       }
       else if (b->upper_left_y >= zone_height - 1 && b->upper_left_x >= (zone_width - goal_width) / 2 && b->upper_left_x <= (zone_width + goal_width) / 2)
@@ -269,8 +269,8 @@ void air_hockey()
         top_score++;
         refresh();
         undraw_ball(b);
-        b = init_ball(zone_width / 2, zone_height / 2, ball_speed, ball_speed); // reset ball to the center
-        reset_sliders(top, bottom, zone_width, zone_height);                    // reset the sliders to default positions
+        b = init_ball((zone_width / 2) - ball_speed, (zone_height / 2) - ball_speed, ball_speed, ball_speed); // reset ball to the center
+        reset_sliders(top, bottom, zone_width, zone_height);                                                  // reset the sliders to default positions
         refresh();
       }
 

@@ -107,11 +107,11 @@ void welcome_page()
 
   // Centering the welcome message
   string welcome_message = "Welcome to Air Hockey!";
-  mvprintw(zone_height / 2 - 6, (zone_width - welcome_message.length()) / 2, welcome_message.c_str());
+  mvprintw(zone_height / 2 - 7, (zone_width - welcome_message.length()) / 2, welcome_message.c_str());
 
   // Centering the scoring summary title
   string scoring_title = "Scoring System:";
-  mvprintw(zone_height / 2 - 4, (zone_width - scoring_title.length()) / 2, scoring_title.c_str());
+  mvprintw(zone_height / 2 - 3, (zone_width - scoring_title.length()) / 2, scoring_title.c_str());
 
   // Centering the scoring summary list
   string scoring_summary[] = {
@@ -129,7 +129,7 @@ void welcome_page()
 
   // Press 't' to start
   string start_message = "Press 't' to start the game!";
-  mvprintw(zone_height / 2 + 7, (zone_width - start_message.length()) / 2, start_message.c_str());
+  mvprintw(zone_height / 2 - 5, (zone_width - start_message.length()) / 2, start_message.c_str());
 
   // Refresh the window to show the changes
   refresh();
