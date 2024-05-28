@@ -58,6 +58,14 @@ void air_hockey()
   // get the number of games to be played from the user before starting the game
   int game_count = prompt_game_count(zone_height, zone_width);
 
+  // get the game difficulty from the user before starting the game
+  int difficulty = prompt_difficulty_selection(zone_height, zone_width);
+  // easy - 1 speed, medium - 2 speed, hard - 3 speed.
+  // since the speed has to be an int, and multiplying 1 by 1.2 (20% increase) would lead to 1.2 (a double),
+  // it isn't feasible to increase by exactly 20%, so we chose to just use the ceiling of that
+  // (1 * 1.2 = 1.2 -> 2, 2 * 1.2 = 2.4 -> 3).
+  int ball_speed = difficulty;
+
   // get the slider size from the user before starting the game
   int slider_size = prompt_slider_size(zone_height, zone_width);
 
@@ -69,7 +77,7 @@ void air_hockey()
   {
     clear();
     zone_t *z = init_zone(0, 2, zone_width, zone_height - 2, goal_width);
-    ball_t *b = init_ball(zone_width / 2, zone_height / 2, 1, 1);
+    ball_t *b = init_ball(zone_width / 2, zone_height / 2, ball_speed, ball_speed);
     slider_t *top = init_slider(zone_width / 2, 5, 'T', slider_size);
     slider_t *bottom = init_slider(zone_width / 2, zone_height - 5, 'U', slider_size);
     draw_zone(z);
@@ -252,8 +260,8 @@ void air_hockey()
         bottom_score++;
         refresh();
         undraw_ball(b);
-        b = init_ball(zone_width / 2, zone_height / 2, 1, 1); // reset ball to the center
-        reset_sliders(top, bottom, zone_width, zone_height);  // reset the sliders to default positions
+        b = init_ball(zone_width / 2, zone_height / 2, ball_speed, ball_speed); // reset ball to the center
+        reset_sliders(top, bottom, zone_width, zone_height);                    // reset the sliders to default positions
         refresh();
       }
       else if (b->upper_left_y >= zone_height - 1 && b->upper_left_x >= (zone_width - goal_width) / 2 && b->upper_left_x <= (zone_width + goal_width) / 2)
@@ -261,8 +269,8 @@ void air_hockey()
         top_score++;
         refresh();
         undraw_ball(b);
-        b = init_ball(zone_width / 2, zone_height / 2, 1, 1); // reset ball to the center
-        reset_sliders(top, bottom, zone_width, zone_height);  // reset the sliders to default positions
+        b = init_ball(zone_width / 2, zone_height / 2, ball_speed, ball_speed); // reset ball to the center
+        reset_sliders(top, bottom, zone_width, zone_height);                    // reset the sliders to default positions
         refresh();
       }
 
@@ -289,12 +297,32 @@ int prompt_slider_size(int zone_height, int zone_width)
   int slider_size;
   do
   {
-    mvprintw(zone_height / 2, (zone_width - 30) / 2, "Enter a slider size (4-7): ");
+    mvprintw(zone_height / 2, (zone_width - 28) / 2, "Enter a slider size (4-7): ");
     slider_size = getch();
   } while (slider_size < 52 || slider_size > 55); // using ascii values for the numbers 4-7
 
+  // print selection
+  mvprintw(zone_height / 2, (zone_width - 28) / 2, "Enter a slider size (4-7): %d", slider_size - 48);
+
   // convert from ascii value to the correlated value, where 52 = 4, so 52-48 = 4
   return slider_size - 48;
+}
+
+// Prompts the user to enter a difficulty for the game
+int prompt_difficulty_selection(int zone_height, int zone_width)
+{
+  int difficulty;
+  do
+  {
+    mvprintw(zone_height / 2 - 1, (zone_width - 51) / 2, "Enter a difficulty (1: Easy, 2: Medium, 3: Hard): ");
+    difficulty = getch();
+  } while (difficulty < 49 || difficulty > 51); // using ascii values for the numbers 1-3
+
+  // print selection
+  mvprintw(zone_height / 2 - 1, (zone_width - 51) / 2, "Enter a difficulty (1: Easy, 2: Medium, 3: Hard): %d", difficulty - 48);
+
+  // convert from ascii value to the correlated value, where 49 = 1, so 49-48 = 1
+  return difficulty - 48;
 }
 
 // Prompts the user to enter a goal width for the game
@@ -307,7 +335,7 @@ int prompt_goal_width(int zone_height, int zone_width)
 
   do
   {
-    mvprintw((zone_height / 2) + 1, (zone_width - 50) / 2, goal_width_prompt.c_str());
+    mvprintw((zone_height / 2) + 1, (zone_width - 75) / 2, goal_width_prompt.c_str());
     echo();
     char input[10];
     getstr(input);
@@ -324,7 +352,7 @@ int prompt_goal_width(int zone_height, int zone_width)
     noecho();
     if (goal_width >= max_goal_width)
     {
-      mvprintw((zone_height / 2) + 2, (zone_width - 50) / 2, "Goal width must be less than the zone width. Try again.");
+      mvprintw((zone_height / 2) + 2, (zone_width - 75) / 2, "Goal width must be less than the zone width. Try again.");
     }
   } while (goal_width >= max_goal_width);
 
@@ -337,11 +365,14 @@ int prompt_game_count(int zone_height, int zone_width)
   int game_count;
   do
   {
-    mvprintw((zone_height / 2) - 1, (zone_width - 30) / 2, "Enter the number of games to play (max of 9): ");
+    mvprintw((zone_height / 2) - 2, (zone_width - 47) / 2, "Enter the number of games to play (max of 9): ");
     game_count = getch();
-  } while (game_count < 49 || game_count > 57); // using ascii values for the numbers 0-9
+  } while (game_count < 49 || game_count > 57); // using ascii values for the numbers 1-9
 
-  // convert from ascii value to the correlated value, where 48 = 0, so 48-48 = 0
+  // print selection
+  mvprintw((zone_height / 2) - 2, (zone_width - 47) / 2, "Enter the number of games to play (max of 9): %d", game_count - 48);
+
+  // convert from ascii value to the correlated value, where 49 = 1, so 49-48 = 1
   return game_count - 48;
 }
 
