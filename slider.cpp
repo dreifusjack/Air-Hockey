@@ -51,7 +51,7 @@ void moveSlider(slider_t *s, int x, int y, int zone_width, int zone_height)
     return;
   }
   // if the slider goes outside the zone with (bottom and right)
-  if (x + 4 > zone_width || y + 1 > zone_height)
+  if (x + 4 > zone_width || y + 2 > zone_height)
   {
     return;
   }
