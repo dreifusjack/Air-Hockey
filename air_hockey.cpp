@@ -120,7 +120,6 @@ void air_hockey()
           else if (end_choice == 'E' || end_choice == 'e')
           {
             clear();
-            printw("Exiting the game...");
             game_over = true;
             in_game = false;
             break; // Breaks out of both loops and exits the program
@@ -434,7 +433,7 @@ void end_game_screen(int zone_width, int zone_height, int top_goals, int bottom_
   }
   // Display the current top 10 scores
   vector<int> scores = get_scores();
-  mvprintw(2, 2, "Top 10 Scores (calculated goals/seconds * 1000):");
+  mvprintw(2, 2, "Leaderboard (scores calculated goals/seconds * 1000):");
   for (size_t i = 0; i < scores.size(); i++)
   {
     mvprintw(3 + i, 2, "%zu: %d", i + 1, scores[i]);
