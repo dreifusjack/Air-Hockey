@@ -2,6 +2,7 @@
 #define AIR_HOCKEY_HPP
 
 #include <chrono>
+#include <vector>
 using namespace std;
 
 void air_hockey();
@@ -13,9 +14,10 @@ void end_game_screen(int zone_width, int zone_height, int top_score, int bottom_
 
 struct Obstacle
 {
-    int x;
-    int y;
+  int x;
+  int y;
 };
+
 vector<Obstacle> generate_obstacles(int zone_width, int zone_height);
 void draw_obstacles(const vector<Obstacle> &obstacles);
 
