@@ -47,14 +47,14 @@ vector<Obstacle> generate_obstacles(int zone_width, int zone_height)
   {
     if (i == 0)
     {
-      int x = zone_width / 2 + 4;
-      int y = zone_height / 2;
+      int x = rand() % zone_width;
+      int y = rand() % zone_height;
       obstacles.push_back({x, y});
     }
     else
     {
-      int x = zone_width / 3 - 13;
-      int y = zone_height / 3;
+      int x = rand() % zone_width;
+      int y = rand() % zone_height;
       obstacles.push_back({x, y});
     }
   }

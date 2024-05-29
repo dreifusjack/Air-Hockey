@@ -2,6 +2,7 @@
 #define AIR_HOCKEY_HPP
 
 #include <chrono>
+#include <vector>
 using namespace std;
 
 void air_hockey();
