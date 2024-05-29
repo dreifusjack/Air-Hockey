@@ -26,7 +26,6 @@
 #include "scores.hpp"
 #include <ncurses.h>
 #include <cstdio>
-#include <ctime>
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -37,40 +36,6 @@ using namespace std;
 int top_wins = 0;
 int bottom_wins = 0;
 int match_length = 0;
-
-// Function to generate random obstacle positions
-vector<Obstacle> generate_obstacles(int zone_width, int zone_height)
-{
-  vector<Obstacle> obstacles;
-  srand(time(0));
-  for (int i = 0; i < 2; ++i)
-  {
-    if (i == 0)
-    {
-      int x = zone_width / 2 + 4;
-      int y = zone_height / 2;
-      obstacles.push_back({x, y});
-    }
-    else
-    {
-      int x = zone_width / 3 - 13;
-      int y = zone_height / 3;
-      obstacles.push_back({x, y});
-    }
-  }
-  return obstacles;
-}
-
-// Function to draw obstacles
-void draw_obstacles(const vector<Obstacle> &obstacles)
-{
-  for (const auto &obs : obstacles)
-  {
-    attron(COLOR_PAIR(5)); // add colors
-    mvprintw(obs.y, obs.x, "#####");
-  }
-  attroff(COLOR_PAIR(5)); // reset colors
-}
 
 // Main Game function
 void air_hockey()
@@ -129,7 +94,7 @@ void air_hockey()
     draw_ball(b);
     draw_obstacles(obstacles); // Draw obstacles
     refresh();
-    halfdelay(3); // Wait for 1/2th of a second for user input
+    halfdelay(3);
     noecho();
     bool is_paused = false;
     int in_game_input;
@@ -514,4 +479,38 @@ void end_game_screen(int zone_width, int zone_height, int top_goals, int bottom_
   {
     mvprintw(3 + i, 2, "%zu: %d", i + 1, scores[i]);
   }
+}
+
+// Function to generate random obstacle positions
+vector<Obstacle> generate_obstacles(int zone_width, int zone_height)
+{
+  vector<Obstacle> obstacles;
+  // create two fixed point obstacles, relative to zone width and height
+  for (int i = 0; i < 2; ++i)
+  {
+    if (i == 0)
+    {
+      int x = zone_width / 2 + 4;
+      int y = zone_height / 2;
+      obstacles.push_back({x, y});
+    }
+    else
+    {
+      int x = zone_width / 3 - 13;
+      int y = zone_height / 3;
+      obstacles.push_back({x, y});
+    }
+  }
+  return obstacles;
+}
+
+// Function to draw obstacles
+void draw_obstacles(const vector<Obstacle> &obstacles)
+{
+  for (const auto &obs : obstacles)
+  {
+    attron(COLOR_PAIR(5)); // add colors
+    mvprintw(obs.y, obs.x, "#####");
+  }
+  attroff(COLOR_PAIR(5)); // reset colors
 }

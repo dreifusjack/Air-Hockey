@@ -56,7 +56,7 @@ bool checkCollisionSlider(slider_t *s, ball_t *b)
           b->speed_y *= -1;
           return true;
         }
-        // if the speed is 2, and the ball is within 1 of the slider. this is necessary
+        // if the speed is 2 or 3, and the ball is within 1 of the slider. this is necessary
         // because the ball may "jump" over the slider if the y-pos doesn't match exactly
         if ((b->speed_y == 2 || b->speed_y == 3) && abs(s->upper_left_y + y - y_ball) == 1)
         {
@@ -85,13 +85,29 @@ bool checkCollisionWithObstacles(ball_t *b, const vector<Obstacle> &obstacles)
   int x_ball = b->upper_left_x;
   for (const auto &obs : obstacles)
   {
+    // obstacle is 5 wide
     for (int x = 0; x < 5; x++)
     {
       for (int y = 0; y < 1; y++)
       {
+        // if x-pos matches
         if (obs.x + x == x_ball)
         {
-          if (abs(obs.y + y - y_ball) == 2)
+          // if y-pos matches exactly
+          if (obs.y + y == y_ball)
+          {
+            b->speed_y *= -1;
+            return true;
+          }
+          // if the speed is 2 or 3 and the ball is within 1 of the obstacle (need since there
+          // is a chance the ball "jumps" over the obstacle)
+          if ((b->speed_y == 2 || b->speed_y == 3) && abs(obs.y + y - y_ball) == 1)
+          {
+            b->speed_y *= -1;
+            return true;
+          }
+          // if speed 3
+          if (b->speed_y == 3 && abs(obs.y + y - y_ball) == 2)
           {
             b->speed_y *= -1;
             return true;
