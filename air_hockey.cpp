@@ -264,7 +264,7 @@ void air_hockey()
       }
 
       // Check if the ball is in the goal area
-      if (b->upper_left_y <= 3 && b->upper_left_x >= (zone_width - goal_width) / 2 && b->upper_left_x <= (zone_width + goal_width) / 2)
+      if (b->upper_left_y <= 3 && b->upper_left_x >= (zone_width - goal_width) / 2 + 10 && b->upper_left_x <= (zone_width + goal_width) / 2 + 10)
       {
         bottom_score++;
         refresh();
@@ -273,7 +273,7 @@ void air_hockey()
         reset_sliders(top, bottom, zone_width, zone_height);                                                  // reset the sliders to default positions
         refresh();
       }
-      else if (b->upper_left_y >= zone_height - 1 && b->upper_left_x >= (zone_width - goal_width) / 2 && b->upper_left_x <= (zone_width + goal_width) / 2)
+      else if (b->upper_left_y >= zone_height - 1 && b->upper_left_x >= (zone_width - goal_width) / 2 + 10 && b->upper_left_x <= (zone_width + goal_width) / 2 + 10)
       {
         top_score++;
         refresh();
@@ -364,7 +364,7 @@ int prompt_goal_width(int zone_height, int zone_width)
     {
       mvprintw((zone_height / 2) + 2, (zone_width - 75) / 2, "Goal width must be less than the zone width. Try again.");
     }
-  } while (goal_width >= max_goal_width);
+  } while (goal_width >= max_goal_width && goal_width < 0);
 
   return goal_width;
 }
